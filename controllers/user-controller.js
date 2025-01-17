@@ -21,6 +21,31 @@ class UserController {
     }
   }
 
+  async login(req, res, next) {
+    try {
+      const { email, password } = req.body
+
+      const userData = await userService.login(email, password)
+
+      return res.json(userData)
+    } catch (e) {
+      next(e)
+    }
+  }
+
+
+  async refresh(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies
+
+      const tokenData = await userService.refresh(refreshToken)
+      res.cookie("refreshToken", tokenData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+
+      return res.json(tokenData)
+    } catch (e) {
+      next(e)
+    }
+  }
 }
 
 module.exports = new UserController()
