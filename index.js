@@ -5,11 +5,17 @@ const cors = require("cors")
 const bodyParser = require("body-parser")
 const routers = require("./router/index.js")
 const db = require("./models")
-const errorMiddleware = require("./middlewares/error-middleware.js")
+const errorMiddleware = require("./middlewares/error-middleware.js");
+const session = require('express-session');
 
 const app = express()
 const PORT = process.env.PORT || 4000
 
+app.use(session({
+  secret: 'your secret',
+  resave: false,
+  saveUninitialized: true,
+}));
 
 app.use(express.json());
 app.use(cookieParser());

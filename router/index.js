@@ -3,9 +3,7 @@ const { body } = require("express-validator");
 const userController = require("../controllers/user-controller");
 const authMiddleware = require("../middlewares/auth-middleware");
 
-
 const router = new Router()
-
 
 router.post(
   "/registration",
@@ -22,7 +20,12 @@ router.post(
   userController.login
 )
 
+router.get("/captcha", userController.captcha)
 router.get("/refresh", userController.refresh)
 
+router.get("/verify-captcha", (req, res) => {
+  console.log(req.session.captcha);
+  res.status(200).send(req.session.captcha);
+});
 
 module.exports = router

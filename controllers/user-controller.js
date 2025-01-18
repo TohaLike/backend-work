@@ -10,9 +10,11 @@ class UserController {
         throw new Error("Ошибка регистрации")
       }
 
-      const { name, password, email } = req.body
+      const { name, password, email, captcha } = req.body
 
-      const userData = await userService.registration(name, password, email)
+      console.log(captcha, req.session.captcha)
+
+      const userData = await userService.registration(name, password, email, req.session.captcha, captcha)
       res.cookie("refreshToken", userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
 
       return res.json(userData)
@@ -42,6 +44,18 @@ class UserController {
       res.cookie("refreshToken", tokenData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
 
       return res.json(tokenData)
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  async captcha(req, res, next) {
+    try {
+      const captchaData = await userService.captcha()
+      req.session.captcha = captchaData.text;
+      res.type('svg');
+      console.log(req.session)
+      return res.json(captchaData.data)
     } catch (e) {
       next(e)
     }
