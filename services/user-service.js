@@ -4,6 +4,9 @@ const UserDto = require("../dtos/user-dto")
 const { models: { User } } = require("../models")
 const ApiError = require("../exceptions/api-error")
 const svgCaptcha = require("svg-captcha")
+const TwoCaptcha = require("@2captcha/captcha-solver")
+const solver = new TwoCaptcha.Solver(process.env.TWO_CAPTCHA_API)
+const sharp = require('sharp');
 
 class UserService {
   async registration(name, password, email, sessionCaptcha, captcha) {
@@ -25,10 +28,12 @@ class UserService {
     return { ...tokens, user: userDto }
   }
 
-  async login(email, password) {
+  async login(email, password, sessionCaptcha, captcha) {
     const userData = await User.findOne({ where: { email } })
 
     if (!userData) throw ApiError.BadRequest(`Пользователь с таким email адресом ${email} не зарегистрирован`)
+
+    if (sessionCaptcha !== captcha) throw ApiError.BadRequest("Не правильный код с картинки")
 
     const isEqualPassword = await bcrypt.compare(password, userData.password)
 
@@ -63,18 +68,27 @@ class UserService {
 
 
   async captcha() {
-    try {
-      const captcha = svgCaptcha.create({
-        size: 8,
-        ignoreChars: 'iLl10I',
-        noise: 15,
-        color: true,
-      });
+    const captcha = svgCaptcha.create({
+      size: 8,
+      ignoreChars: 'iLl10I',
+      noise: 10,
+      color: true,
+    });
 
-      return captcha;
-    } catch (e) {
-      next(e)
-    }
+    return captcha;
+  }
+
+  async resolveCaptcha(captcha) {
+    const svgBuffer = Buffer.from(captcha.split(',')[1], 'base64');
+
+    const pngBuffer = await sharp(svgBuffer).png().toBuffer();
+
+    const captchaBase64 = pngBuffer.toString('base64');
+    const captchaSolver = await solver.imageCaptcha({
+      body: captchaBase64,
+    })
+
+    return captchaSolver
   }
 }
 

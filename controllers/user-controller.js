@@ -12,7 +12,7 @@ class UserController {
 
       const { name, password, email, captcha } = req.body
 
-      console.log(captcha, req.session.captcha)
+      // console.log(captcha, req.session.captcha)
 
       const userData = await userService.registration(name, password, email, req.session.captcha, captcha)
       res.cookie("refreshToken", userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
@@ -25,9 +25,10 @@ class UserController {
 
   async login(req, res, next) {
     try {
-      const { email, password } = req.body
+      const { email, password, captcha } = req.body
 
-      const userData = await userService.login(email, password)
+      const userData = await userService.login(email, password, req.session.captcha, captcha)
+      res.cookie("refreshToken", userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
 
       return res.json(userData)
     } catch (e) {
@@ -56,6 +57,18 @@ class UserController {
       res.type('svg');
       console.log(req.session)
       return res.json(captchaData.data)
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  async resolveCaptcha(req, res, next) {
+    try {
+      const { captcha } = req.body
+
+      const captchaData = await userService.resolveCaptcha(captcha)
+
+      return res.json(captchaData)
     } catch (e) {
       next(e)
     }

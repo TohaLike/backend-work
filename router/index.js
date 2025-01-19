@@ -12,20 +12,16 @@ router.post(
   body("password").isLength({ min: 8, max: 32 }),
   userController.registration
 )
-
 router.post(
   "/login",
   body("email").isEmail(),
   body("password").isLength({ min: 8, max: 32 }),
   userController.login
 )
+router.post("/resolve_captcha", userController.resolveCaptcha)
+
 
 router.get("/captcha", userController.captcha)
 router.get("/refresh", userController.refresh)
-
-router.get("/verify-captcha", (req, res) => {
-  console.log(req.session.captcha);
-  res.status(200).send(req.session.captcha);
-});
 
 module.exports = router
