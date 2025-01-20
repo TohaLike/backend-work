@@ -9,6 +9,8 @@ const solver = new TwoCaptcha.Solver(process.env.TWO_CAPTCHA_API)
 const sharp = require('sharp');
 
 class UserService {
+  сaptchaCode = ""
+
   async registration(name, password, email, sessionCaptcha, captcha) {
     const candidate = await User.findOne({ where: { email } })
 
@@ -30,6 +32,8 @@ class UserService {
 
   async login(email, password, sessionCaptcha, captcha) {
     const userData = await User.findOne({ where: { email } })
+
+    console.log(sessionCaptcha, captcha)
 
     if (!userData) throw ApiError.BadRequest(`Пользователь с таким email адресом ${email} не зарегистрирован`)
 
@@ -69,11 +73,13 @@ class UserService {
 
   async captcha() {
     const captcha = svgCaptcha.create({
-      size: 8,
+      size: 6,
       ignoreChars: 'iLl10I',
-      noise: 10,
+      noise: 1,
       color: true,
     });
+
+    this.сaptchaCode = captcha.data
 
     return captcha;
   }

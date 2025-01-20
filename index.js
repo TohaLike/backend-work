@@ -11,10 +11,12 @@ const session = require('express-session');
 const app = express()
 const PORT = process.env.PORT || 4000
 
+// app.set('trust proxy', 1)
 app.use(session({
   secret: 'your secret',
-  resave: false,
+  resave: true,
   saveUninitialized: true,
+  cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } // 1 day
 }));
 
 app.use(express.json());

@@ -27,9 +27,12 @@ class UserController {
     try {
       const { email, password, captcha } = req.body
 
+      console.log(req.session)
+
       const userData = await userService.login(email, password, req.session.captcha, captcha)
       res.cookie("refreshToken", userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
 
+      console.log(userData)
       return res.json(userData)
     } catch (e) {
       next(e)

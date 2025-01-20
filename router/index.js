@@ -20,6 +20,14 @@ router.post(
 )
 router.post("/resolve_captcha", userController.resolveCaptcha)
 
+router.get("/test", (req, res, next) => {
+  try {
+   console.log(req.session)
+   return res.json(req.session)
+  } catch (e) {
+    next(e)
+  }
+})
 
 router.get("/captcha", userController.captcha)
 router.get("/refresh", userController.refresh)
