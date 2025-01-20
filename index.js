@@ -16,7 +16,7 @@ app.use(session({
   secret: 'your secret',
   resave: true,
   saveUninitialized: true,
-  cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } // 1 day
+  // cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } // 1 day
 }));
 
 app.use(express.json());

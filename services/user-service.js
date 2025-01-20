@@ -16,6 +16,8 @@ class UserService {
 
     if (candidate) throw ApiError.BadRequest(`Пользователь с таким email адресом '${email}' уже есть`)
 
+    console.log(sessionCaptcha, captcha)
+
     if (sessionCaptcha !== captcha) throw ApiError.BadRequest("Не правильный код с картинки")
 
     const hashPassword = await bcrypt.hash(password, 3)
@@ -79,23 +81,21 @@ class UserService {
       color: true,
     });
 
-    this.сaptchaCode = captcha.data
-
     return captcha;
   }
 
-  async resolveCaptcha(captcha) {
-    const svgBuffer = Buffer.from(captcha.split(',')[1], 'base64');
+  // async resolveCaptcha(captcha) {
+  //   const svgBuffer = Buffer.from(captcha.split(',')[1], 'base64');
 
-    const pngBuffer = await sharp(svgBuffer).png().toBuffer();
+  //   const pngBuffer = await sharp(svgBuffer).png().toBuffer();
 
-    const captchaBase64 = pngBuffer.toString('base64');
-    const captchaSolver = await solver.imageCaptcha({
-      body: captchaBase64,
-    })
+  //   const captchaBase64 = pngBuffer.toString('base64');
+  //   const captchaSolver = await solver.imageCaptcha({
+  //     body: captchaBase64,
+  //   })
 
-    return captchaSolver
-  }
+  //   return captchaSolver
+  // }
 }
 
 module.exports = new UserService()
